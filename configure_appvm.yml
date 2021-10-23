@@ -1,0 +1,113 @@
+---
+# Configure weight tracker application web server on webservers hosts
+- name: Configure weight tracker application web server
+  hosts: webservers
+  become: true
+  vars_files:
+    - ./vars.yml
+  remote_user: ubuntu
+  tasks:
+    # Install nodejs version 12+ with required prerequisities:
+
+    - name: install nodejs prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - gcc
+          - g++
+          - make
+        state: present
+    - name: add nodejs apt key
+      apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+    - name: add nodejs repository
+      apt_repository:
+        repo: deb https://deb.nodesource.com/node_12.x {{ ansible_lsb.codename }} main
+        state: present
+        update_cache: yes
+    - name: install nodejs
+      apt:
+        name: nodejs
+        state: present
+    # Update cache if older than one day and upgrade packages:
+    - name: Update and upgrade apt packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
+    # Clone bootcamp-app from git repository:
+    - name: Clone bootcamp-app git repository
+      git:
+        repo: https://github.com/NoamPeace/bootcamp-app.git
+        dest: /src/bootcamp-app
+        clone: yes
+        update: no
+    # Create a nodejs environment variables file:
+    - name: Create a nodejs environment variables file
+      copy:
+       dest: /src/bootcamp-app/.env
+       content: |
+        # Host configuration
+        PORT=8080
+        HOST=0.0.0.0
+        NODE_ENV=development
+        HOST_URL=http://{{ host_url }}:8080
+        COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+        # Okta configuration
+        OKTA_ORG_URL=https://{{ okta_dev_url }}
+        OKTA_CLIENT_ID={{ okta_clientid }}
+        OKTA_CLIENT_SECRET={{ okta_secret }}
+        # Postgres configuration
+        PGHOST={{ postgres_domain }}
+        PGUSERNAME={{ postgres_admin }}@{{ postgres_domain }}
+        PGDATABASE=postgres
+        PGPASSWORD={{ postgres_password }}
+        PGPORT=5432
+    # Change the directory and run npm initializer command to create package.json
+    - name: Change the directory and run npm initializer command to create package.json
+      command: /usr/bin/npm init -y
+      args:
+        chdir: /src/bootcamp-app
+    # Install packages based on package.json
+    - name: Install packages based on package.json.
+      npm:
+        path: /src/bootcamp-app
+    # Run command npm audit fix
+    - name: Change the directory and run npm audit fix
+      command: /usr/bin/npm audit fix
+      args:
+        chdir: /src/bootcamp-app
+    # Run command npm run initdb
+    - name: Change the directory and run npm initdb to create a new table in the database and drop existing
+      command: /usr/bin/npm audit fix
+      args:
+        chdir: /src/bootcamp-app
+    # Create a new bootcamp-app service file:
+    - name: Create a new bootcamp-app service file
+      copy:
+       dest: /etc/systemd/system/bootcamp-app.service
+       content: |
+        [Unit]
+        Description=BootCamp App Weight Tracker
+        
+        [Service]
+        WorkingDirectory=/src/bootcamp-app
+        ExecStart=/usr/bin/npm run dev
+        Type=simple
+        Restart=always
+        RestartSec=10
+        
+        [Install]
+        WantedBy=basic.target
+    # Enable bootcamp-app service to start at boot time
+    - name: Enable bootcamp-app service to start at boot time
+      ansible.builtin.systemd:
+        name: bootcamp-app
+        enabled: yes
+    # Start bootcamp-app service
+    - name: Start bootcamp-app service
+      ansible.builtin.systemd:
+        name: bootcamp-app
+        state: started
+        
