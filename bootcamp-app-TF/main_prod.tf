@@ -146,43 +146,43 @@ resource "azurerm_network_interface" "nic3_production" {
 }
 
 # Associate network interface1 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic_back_association_production" {
-   network_interface_id    = azurerm_network_interface.nic_production.id
-   ip_configuration_name   = azurerm_network_interface.nic_production.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic_back_association_production" {
+  network_interface_id    = azurerm_network_interface.nic_production.id
+  ip_configuration_name   = azurerm_network_interface.nic_production.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
+}
 # Associate network interface2 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic2_back_association_production" {
-   network_interface_id    = azurerm_network_interface.nic2_production.id
-   ip_configuration_name   = azurerm_network_interface.nic2_production.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic2_back_association_production" {
+  network_interface_id    = azurerm_network_interface.nic2_production.id
+  ip_configuration_name   = azurerm_network_interface.nic2_production.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
+}
 # Associate network interface3 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic3_back_association_production" {
-   network_interface_id    = azurerm_network_interface.nic3_production.id
-   ip_configuration_name   = azurerm_network_interface.nic3_production.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic3_back_association_production" {
+  network_interface_id    = azurerm_network_interface.nic3_production.id
+  ip_configuration_name   = azurerm_network_interface.nic3_production.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_production.id
+}
 
 
 # Associate network interface1 to the load balancer NAT Rule1
 resource "azurerm_network_interface_nat_rule_association" "nic1_natrule_association_production" {
   network_interface_id  = azurerm_network_interface.nic_production.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Production"
+  ip_configuration_name = azurerm_network_interface.nic_production.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule1_production.id
 }
 
 # Associate network interface2 to the load balancer NAT Rule2
 resource "azurerm_network_interface_nat_rule_association" "nic2_natrule_association_production" {
   network_interface_id  = azurerm_network_interface.nic2_production.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Production"
+  ip_configuration_name = azurerm_network_interface.nic2_production.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule2_production.id
 }
 
 # Associate network interface3 to the load balancer NAT Rule3
 resource "azurerm_network_interface_nat_rule_association" "nic3_natrule_association_production" {
   network_interface_id  = azurerm_network_interface.nic3_production.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Production"
+  ip_configuration_name = azurerm_network_interface.nic3_production.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule3_production.id
 }
 
@@ -247,7 +247,7 @@ resource "azurerm_network_security_group" "nsg_production" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = data.azurerm_public_ip.publicip_ansible_controller.ip_address
+    source_address_prefix      = data.azurerm_public_ip.ip_ansible_controller.ip_address
     destination_address_prefix = "*"
   }
   security_rule {
@@ -274,20 +274,20 @@ resource "azurerm_subnet_network_security_group_association" "public_production"
 
 
 # Associate network interface1 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic_production" {
-   network_interface_id      = azurerm_network_interface.nic_production.id
-   network_security_group_id = azurerm_network_security_group.nsg_production.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic_production" {
+  network_interface_id      = azurerm_network_interface.nic_production.id
+  network_security_group_id = azurerm_network_security_group.nsg_production.id
+}
 # Associate network interface2 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic2_production" {
-   network_interface_id      = azurerm_network_interface.nic2_production.id
-   network_security_group_id = azurerm_network_security_group.nsg_production.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic2_production" {
+  network_interface_id      = azurerm_network_interface.nic2_production.id
+  network_security_group_id = azurerm_network_security_group.nsg_production.id
+}
 # Associate network interface3 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic3_production" {
-   network_interface_id      = azurerm_network_interface.nic3_production.id
-   network_security_group_id = azurerm_network_security_group.nsg_production.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic3_production" {
+  network_interface_id      = azurerm_network_interface.nic3_production.id
+  network_security_group_id = azurerm_network_security_group.nsg_production.id
+}
 
 
 #Create Postgresql Server

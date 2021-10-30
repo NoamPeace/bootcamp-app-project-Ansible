@@ -42,7 +42,7 @@ resource "azurerm_network_interface" "nic_ansible_controller" {
     name                          = "bootcamp_Week5-NIC1_Conf_ansible_controller"
     subnet_id                     = azurerm_subnet.subnet_ansible_controller.id
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id = azurerm_public_ip.publicip_ansible_controller.id
+    public_ip_address_id          = azurerm_public_ip.publicip_ansible_controller.id
   }
 }
 
@@ -64,11 +64,8 @@ resource "azurerm_network_security_group" "nsg_ansible_controller" {
     destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-    }
-}
-
-
-security_rule {
+  }
+  security_rule {
     name                       = "SSH_Outbound"
     priority                   = 1002
     direction                  = "Outbound"
@@ -79,6 +76,9 @@ security_rule {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+}
+
+
 
 # Associate ansible controller subnet to ansible controller subnet_network_security_group
 resource "azurerm_subnet_network_security_group_association" "public_ansible_controller" {
@@ -88,18 +88,18 @@ resource "azurerm_subnet_network_security_group_association" "public_ansible_con
 
 
 # Associate ansible controller network interface to ansible controller public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic_ansible_controller" {
-   network_interface_id      = azurerm_network_interface.nic_ansible_controller.id
-   network_security_group_id = azurerm_network_security_group.nsg_ansible_controller.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic_ansible_controller" {
+  network_interface_id      = azurerm_network_interface.nic_ansible_controller.id
+  network_security_group_id = azurerm_network_security_group.nsg_ansible_controller.id
+}
 
 
 
 # Create a linux ansible controller virtual machine using virtual machine module
 resource "azurerm_virtual_machine" "vm_ansible_controller" {
-  name                = "${var.prefix}-VM-Ansible-Controller"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rg_ansible.name
+  name                  = "${var.prefix}-VM-Ansible-Controller"
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.rg_ansible.name
   network_interface_ids = [azurerm_network_interface.nic_ansible_controller.id]
   vm_size               = var.public_vm_size
 

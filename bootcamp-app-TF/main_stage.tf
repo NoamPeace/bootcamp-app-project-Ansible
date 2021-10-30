@@ -147,42 +147,42 @@ resource "azurerm_network_interface" "nic3_staging" {
 }
 
 # Associate network interface1 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic_back_association_staging" {
-   network_interface_id    = azurerm_network_interface.nic_staging.id
-   ip_configuration_name   = azurerm_network_interface.nic_staging.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic_back_association_staging" {
+  network_interface_id    = azurerm_network_interface.nic_staging.id
+  ip_configuration_name   = azurerm_network_interface.nic_staging.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
+}
 # Associate network interface2 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic2_back_association_staging" {
-   network_interface_id    = azurerm_network_interface.nic2_staging.id
-   ip_configuration_name   = azurerm_network_interface.nic2_staging.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic2_back_association_staging" {
+  network_interface_id    = azurerm_network_interface.nic2_staging.id
+  ip_configuration_name   = azurerm_network_interface.nic2_staging.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
+}
 # Associate network interface3 to the load balancer backend address pool
- resource "azurerm_network_interface_backend_address_pool_association" "nic3_back_association_staging" {
-   network_interface_id    = azurerm_network_interface.nic3_staging.id
-   ip_configuration_name   = azurerm_network_interface.nic3_staging.ip_configuration[0].name
-   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
- }
+resource "azurerm_network_interface_backend_address_pool_association" "nic3_back_association_staging" {
+  network_interface_id    = azurerm_network_interface.nic3_staging.id
+  ip_configuration_name   = azurerm_network_interface.nic3_staging.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
+}
 
 # Associate network interface1 to the load balancer NAT Rule1
 resource "azurerm_network_interface_nat_rule_association" "nic1_natrule_association_staging" {
   network_interface_id  = azurerm_network_interface.nic_staging.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  ip_configuration_name = azurerm_network_interface.nic_staging.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule1_staging.id
 }
 
 # Associate network interface2 to the load balancer NAT Rule2
 resource "azurerm_network_interface_nat_rule_association" "nic2_natrule_association_staging" {
   network_interface_id  = azurerm_network_interface.nic2_staging.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  ip_configuration_name = azurerm_network_interface.nic2_staging.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule2_staging.id
 }
 
 # Associate network interface3 to the load balancer NAT Rule3
 resource "azurerm_network_interface_nat_rule_association" "nic3_natrule_association_staging" {
   network_interface_id  = azurerm_network_interface.nic3_staging.id
-  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  ip_configuration_name = azurerm_network_interface.nic3_staging.ip_configuration[0].name
   nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule3_staging.id
 }
 
@@ -245,7 +245,7 @@ resource "azurerm_network_security_group" "nsg_staging" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = data.azurerm_public_ip.publicip_ansible_controller.ip_address
+    source_address_prefix      = data.azurerm_public_ip.ip_ansible_controller.ip_address
     destination_address_prefix = "*"
   }
 
@@ -274,20 +274,20 @@ resource "azurerm_subnet_network_security_group_association" "public_staging" {
 
 
 # Associate network interface1 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic_staging" {
-   network_interface_id      = azurerm_network_interface.nic_staging.id
-   network_security_group_id = azurerm_network_security_group.nsg_staging.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic_staging" {
+  network_interface_id      = azurerm_network_interface.nic_staging.id
+  network_security_group_id = azurerm_network_security_group.nsg_staging.id
+}
 # Associate network interface2 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic2_staging" {
-   network_interface_id      = azurerm_network_interface.nic2_staging.id
-   network_security_group_id = azurerm_network_security_group.nsg_staging.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic2_staging" {
+  network_interface_id      = azurerm_network_interface.nic2_staging.id
+  network_security_group_id = azurerm_network_security_group.nsg_staging.id
+}
 # Associate network interface3 to public subnet_network_security_group
- resource "azurerm_network_interface_security_group_association" "nsg_nic3_staging" {
-   network_interface_id      = azurerm_network_interface.nic3_staging.id
-   network_security_group_id = azurerm_network_security_group.nsg_staging.id
- }
+resource "azurerm_network_interface_security_group_association" "nsg_nic3_staging" {
+  network_interface_id      = azurerm_network_interface.nic3_staging.id
+  network_security_group_id = azurerm_network_security_group.nsg_staging.id
+}
 
 
 #Create Postgresql Server
