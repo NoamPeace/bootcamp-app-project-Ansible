@@ -60,12 +60,25 @@ resource "azurerm_network_security_group" "nsg_ansible_controller" {
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "22"
+    source_port_range          = "*"
     destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
     }
 }
+
+
+security_rule {
+    name                       = "SSH_Outbound"
+    priority                   = 1002
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 
 # Associate ansible controller subnet to ansible controller subnet_network_security_group
 resource "azurerm_subnet_network_security_group_association" "public_ansible_controller" {

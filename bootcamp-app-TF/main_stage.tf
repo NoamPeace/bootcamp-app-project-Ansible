@@ -55,6 +55,40 @@ resource "azurerm_lb_backend_address_pool" "backend_address_pool_public_staging"
 
 }
 
+# Create a NAT Rule for the load balancer
+resource "azurerm_lb_nat_rule" "publicLB_NATrule1_staging" {
+  resource_group_name            = azurerm_resource_group.rg_stage.name
+  loadbalancer_id                = azurerm_lb.publicLB_staging.id
+  name                           = "SSH_appVM1"
+  protocol                       = "Tcp"
+  frontend_port                  = 50000
+  backend_port                   = 22
+  frontend_ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+}
+
+# Create a NAT Rule 2 for the load balancer
+resource "azurerm_lb_nat_rule" "publicLB_NATrule2_staging" {
+  resource_group_name            = azurerm_resource_group.rg_stage.name
+  loadbalancer_id                = azurerm_lb.publicLB_staging.id
+  name                           = "SSH_appVM2"
+  protocol                       = "Tcp"
+  frontend_port                  = 50001
+  backend_port                   = 22
+  frontend_ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+}
+
+# Create a NAT Rule 3 for the load balancer
+resource "azurerm_lb_nat_rule" "publicLB_NATrule3_staging" {
+  resource_group_name            = azurerm_resource_group.rg_stage.name
+  loadbalancer_id                = azurerm_lb.publicLB_staging.id
+  name                           = "SSH_appVM3"
+  protocol                       = "Tcp"
+  frontend_port                  = 50002
+  backend_port                   = 22
+  frontend_ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+}
+
+
 
 # Delay before network interfaces creation for 30 seconds
 resource "null_resource" "delay_nics_staging" {
@@ -131,9 +165,26 @@ resource "azurerm_network_interface" "nic3_staging" {
    backend_address_pool_id = azurerm_lb_backend_address_pool.backend_address_pool_public_staging.id
  }
 
+# Associate network interface1 to the load balancer NAT Rule1
+resource "azurerm_network_interface_nat_rule_association" "nic1_natrule_association_staging" {
+  network_interface_id  = azurerm_network_interface.nic_staging.id
+  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule1_staging.id
+}
 
+# Associate network interface2 to the load balancer NAT Rule2
+resource "azurerm_network_interface_nat_rule_association" "nic2_natrule_association_staging" {
+  network_interface_id  = azurerm_network_interface.nic2_staging.id
+  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule2_staging.id
+}
 
-
+# Associate network interface3 to the load balancer NAT Rule3
+resource "azurerm_network_interface_nat_rule_association" "nic3_natrule_association_staging" {
+  network_interface_id  = azurerm_network_interface.nic3_staging.id
+  ip_configuration_name = "${var.prefix}-PublicIPAddress-Staging"
+  nat_rule_id           = azurerm_lb_nat_rule.publicLB_NATrule3_staging.id
+}
 
 #Create load balancer probe for port 8080
 resource "azurerm_lb_probe" "lb_probe_staging" {
@@ -192,11 +243,13 @@ resource "azurerm_network_security_group" "nsg_staging" {
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "22"
+    source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = data.azurerm_public_ip.ip_production.ip_address
+    source_address_prefix      = data.azurerm_public_ip.publicip_ansible_controller.ip_address
     destination_address_prefix = "*"
   }
+
+
   security_rule {
     name                       = "Port_8080"
     priority                   = 101
@@ -235,12 +288,6 @@ resource "azurerm_subnet_network_security_group_association" "public_staging" {
    network_interface_id      = azurerm_network_interface.nic3_staging.id
    network_security_group_id = azurerm_network_security_group.nsg_staging.id
  }
-# Associate db network interface to db subnet_network_security_group
-#  resource "azurerm_network_interface_security_group_association" "dbnsg" {
-#    network_interface_id      = azurerm_network_interface.dbnic.id
-#    network_security_group_id = azurerm_network_security_group.dbnsg.id
-#  }
-
 
 
 #Create Postgresql Server
