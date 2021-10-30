@@ -1,10 +1,16 @@
 
+# Create Resource Group
+resource "azurerm_resource_group" "rg_prod" {
+  name     = "${var.prefix}-ResourceGroup-Production"
+  location = var.location
+}
+
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet_production" {
   name                = "${var.prefix}-Vnet-Production"
   address_space       = [var.vnet-cidr]
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 }
 
 
@@ -12,7 +18,7 @@ resource "azurerm_virtual_network" "vnet_production" {
 # Create 2 subnet :Public and Private
 resource "azurerm_subnet" "subnet_production" {
   name                 = var.subnet_name[count.index]
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = azurerm_resource_group.rg_prod.name
   virtual_network_name = azurerm_virtual_network.vnet_production.name
   address_prefixes     = [var.subnet_prefix[count.index]]
   count                = 2
@@ -22,7 +28,7 @@ resource "azurerm_subnet" "subnet_production" {
 resource "azurerm_public_ip" "publicip_production" {
   name                = "${var.prefix}-PublicIP-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
   allocation_method   = "Static"
 
 }
@@ -34,7 +40,7 @@ resource "azurerm_public_ip" "publicip_production" {
 resource "azurerm_lb" "publicLB_production" {
   name                = "${var.prefix}-LoadBalancer-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
   frontend_ip_configuration {
     name                 = "${var.prefix}-PublicIPAddress-Production"
@@ -67,7 +73,7 @@ resource "null_resource" "delay_nics_production" {
 resource "azurerm_network_interface" "nic_production" {
   name                = "${var.prefix}-NIC1-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
   ip_configuration {
     name                          = "bootcamp_Week5-NIC1_Conf_production"
@@ -83,7 +89,7 @@ resource "azurerm_network_interface" "nic_production" {
 resource "azurerm_network_interface" "nic2_production" {
   name                = "${var.prefix}-NIC2-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
   ip_configuration {
     name                          = "bootcamp_Week5-NIC2_Conf_production"
@@ -97,7 +103,7 @@ resource "azurerm_network_interface" "nic2_production" {
 resource "azurerm_network_interface" "nic3_production" {
   name                = "${var.prefix}-NIC3-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
   ip_configuration {
     name                          = "${var.prefix}-NIC3_Conf_Production"
@@ -132,7 +138,7 @@ resource "azurerm_network_interface" "nic3_production" {
 #Create load balancer probe for port 8080
 resource "azurerm_lb_probe" "lb_probe_production" {
   name                = "${var.prefix}-LB_tcpProbe-Production"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
   loadbalancer_id     = azurerm_lb.publicLB_production.id
   protocol            = "HTTP"
   port                = 8080
@@ -147,7 +153,7 @@ resource "azurerm_lb_probe" "lb_probe_production" {
 
 #Create load balancer rule for port 8080
 resource "azurerm_lb_rule" "bootcamp_Week5-LB_rule8080_production" {
-  resource_group_name            = azurerm_resource_group.rg.name
+  resource_group_name            = azurerm_resource_group.rg_prod.name
   loadbalancer_id                = azurerm_lb.publicLB_production.id
   name                           = "LBRule-Production"
   protocol                       = "Tcp"
@@ -166,7 +172,7 @@ resource "azurerm_lb_rule" "bootcamp_Week5-LB_rule8080_production" {
 resource "azurerm_availability_set" "availability_set1_production" {
   name                = "${var.prefix}-AVset-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
 }
 
@@ -177,7 +183,7 @@ resource "azurerm_availability_set" "availability_set1_production" {
 resource "azurerm_network_security_group" "nsg_production" {
   name                = "${var.prefix}-APP-NSG-Production"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
 
   security_rule {
@@ -239,9 +245,9 @@ resource "azurerm_subnet_network_security_group_association" "public_production"
 
 #Create Postgresql Server
 resource "azurerm_postgresql_server" "postgres_production" {
-  name                = lower("${var.prefix}-db")
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = lower("${var.prefix}-db-production")
+  location            = azurerm_resource_group.rg_prod.location
+  resource_group_name = azurerm_resource_group.rg_prod.name
 
   sku_name = "B_Gen5_2"
 
@@ -261,8 +267,8 @@ resource "azurerm_postgresql_server" "postgres_production" {
 
 #Create Postgres firewall rule
 resource "azurerm_postgresql_firewall_rule" "postgres_firewall_production" {
-  name                = lower("${var.prefix}-db-firewall")
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = lower("${var.prefix}-db-firewall-production")
+  resource_group_name = azurerm_resource_group.rg_prod.name
   server_name         = azurerm_postgresql_server.postgres_production.name
   start_ip_address    = data.azurerm_public_ip.ip_production.ip_address
   end_ip_address      = data.azurerm_public_ip.ip_production.ip_address
@@ -277,7 +283,7 @@ module "linux_virtual_machine_module_appvm1_production" {
 
   vm_name               = "${var.prefix}-AppVM1-Production"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_prod.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_production.id
   network_interface_ids = [azurerm_network_interface.nic_production.id]
@@ -310,7 +316,7 @@ module "linux_virtual_machine_module_appvm2_production" {
 
   vm_name               = "${var.prefix}-AppVM2-Production"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_prod.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_production.id
   network_interface_ids = [azurerm_network_interface.nic2_production.id]
@@ -343,7 +349,7 @@ module "linux_virtual_machine_module_appvm3_production" {
 
   vm_name               = "${var.prefix}-AppVM3-Production"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_prod.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_production.id
   network_interface_ids = [azurerm_network_interface.nic3_production.id]

@@ -1,10 +1,16 @@
 
+# Create Resource Group
+resource "azurerm_resource_group" "rg_stage" {
+  name     = "${var.prefix}-ResourceGroup-Staging"
+  location = var.location
+}
+
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet_staging" {
   name                = "${var.prefix}-Vnet-Staging"
   address_space       = [var.vnet-cidr]
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 }
 
 
@@ -12,7 +18,7 @@ resource "azurerm_virtual_network" "vnet_staging" {
 # Create 2 subnet :Public and Private
 resource "azurerm_subnet" "subnet_staging" {
   name                 = var.subnet_name[count.index]
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = azurerm_resource_group.rg_stage.name
   virtual_network_name = azurerm_virtual_network.vnet_staging.name
   address_prefixes     = [var.subnet_prefix[count.index]]
   count                = 2
@@ -22,7 +28,7 @@ resource "azurerm_subnet" "subnet_staging" {
 resource "azurerm_public_ip" "publicip_staging" {
   name                = "${var.prefix}-PublicIP-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
   allocation_method   = "Static"
 
 }
@@ -34,7 +40,7 @@ resource "azurerm_public_ip" "publicip_staging" {
 resource "azurerm_lb" "publicLB_staging" {
   name                = "${var.prefix}-LoadBalancer-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
   frontend_ip_configuration {
     name                 = "${var.prefix}-PublicIPAddress-Staging"
@@ -67,7 +73,7 @@ resource "null_resource" "delay_nics_staging" {
 resource "azurerm_network_interface" "nic_staging" {
   name                = "${var.prefix}-NIC1-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
   ip_configuration {
     name                          = "bootcamp_Week5-NIC1_Conf_staging"
@@ -83,7 +89,7 @@ resource "azurerm_network_interface" "nic_staging" {
 resource "azurerm_network_interface" "nic2_staging" {
   name                = "${var.prefix}-NIC2-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
   ip_configuration {
     name                          = "bootcamp_Week5-NIC2_Conf_staging"
@@ -97,7 +103,7 @@ resource "azurerm_network_interface" "nic2_staging" {
 resource "azurerm_network_interface" "nic3_staging" {
   name                = "${var.prefix}-NIC3-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
   ip_configuration {
     name                          = "${var.prefix}-NIC3_Conf_Staging"
@@ -132,7 +138,7 @@ resource "azurerm_network_interface" "nic3_staging" {
 #Create load balancer probe for port 8080
 resource "azurerm_lb_probe" "lb_probe_staging" {
   name                = "${var.prefix}-LB_tcpProbe-Staging"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
   loadbalancer_id     = azurerm_lb.publicLB_staging.id
   protocol            = "HTTP"
   port                = 8080
@@ -147,7 +153,7 @@ resource "azurerm_lb_probe" "lb_probe_staging" {
 
 #Create load balancer rule for port 8080
 resource "azurerm_lb_rule" "bootcamp_Week5-LB_rule8080_staging" {
-  resource_group_name            = azurerm_resource_group.rg.name
+  resource_group_name            = azurerm_resource_group.rg_stage.name
   loadbalancer_id                = azurerm_lb.publicLB_staging.id
   name                           = "LBRule-Staging"
   protocol                       = "Tcp"
@@ -166,7 +172,7 @@ resource "azurerm_lb_rule" "bootcamp_Week5-LB_rule8080_staging" {
 resource "azurerm_availability_set" "availability_set1_staging" {
   name                = "${var.prefix}-AVset-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
 }
 
@@ -177,7 +183,7 @@ resource "azurerm_availability_set" "availability_set1_staging" {
 resource "azurerm_network_security_group" "nsg_staging" {
   name                = "${var.prefix}-APP-NSG-Staging"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
 
   security_rule {
@@ -239,9 +245,9 @@ resource "azurerm_subnet_network_security_group_association" "public_staging" {
 
 #Create Postgresql Server
 resource "azurerm_postgresql_server" "postgres_staging" {
-  name                = lower("${var.prefix}-db")
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = lower("${var.prefix}-db-staging")
+  location            = azurerm_resource_group.rg_stage.location
+  resource_group_name = azurerm_resource_group.rg_stage.name
 
   sku_name = "B_Gen5_2"
 
@@ -261,8 +267,8 @@ resource "azurerm_postgresql_server" "postgres_staging" {
 
 #Create Postgres firewall rule
 resource "azurerm_postgresql_firewall_rule" "postgres_firewall_staging" {
-  name                = lower("${var.prefix}-db-firewall")
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = lower("${var.prefix}-db-firewall-staging")
+  resource_group_name = azurerm_resource_group.rg_stage.name
   server_name         = azurerm_postgresql_server.postgres_staging.name
   start_ip_address    = data.azurerm_public_ip.ip_staging.ip_address
   end_ip_address      = data.azurerm_public_ip.ip_staging.ip_address
@@ -277,7 +283,7 @@ module "linux_virtual_machine_module_appvm1_staging" {
 
   vm_name               = "${var.prefix}-AppVM1-Staging"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_stage.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_staging.id
   network_interface_ids = [azurerm_network_interface.nic_staging.id]
@@ -310,7 +316,7 @@ module "linux_virtual_machine_module_appvm2_staging" {
 
   vm_name               = "${var.prefix}-AppVM2-Staging"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_stage.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_staging.id
   network_interface_ids = [azurerm_network_interface.nic2_staging.id]
@@ -343,7 +349,7 @@ module "linux_virtual_machine_module_appvm3_staging" {
 
   vm_name               = "${var.prefix}-AppVM3-Staging"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = azurerm_resource_group.rg_stage.name
   public_vm_size        = var.public_vm_size
   availability_set_id   = azurerm_availability_set.availability_set1_staging.id
   network_interface_ids = [azurerm_network_interface.nic3_staging.id]

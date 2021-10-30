@@ -1,10 +1,16 @@
 
+# Create Resource Group
+resource "azurerm_resource_group" "rg_ansible" {
+  name     = "${var.prefix}-ResourceGroup-Ansible_Controller"
+  location = var.location
+}
+
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet_ansible_controller" {
   name                = "${var.prefix}-Vnet-Ansible-Controller"
   address_space       = [var.vnet-cidr]
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_ansible.name
 }
 
 
@@ -12,16 +18,16 @@ resource "azurerm_virtual_network" "vnet_ansible_controller" {
 # Create ansible controller subnet
 resource "azurerm_subnet" "subnet_ansible_controller" {
   name                 = "${var.prefix}-Subnet-Ansible_Controller"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = azurerm_resource_group.rg_ansible.name
   virtual_network_name = azurerm_virtual_network.vnet_ansible_controller.name
-  address_prefixes     = ["192.168.0.0/28"]
+  address_prefixes     = ["10.0.0.0/29"]
 }
 
 # Create a public IP
 resource "azurerm_public_ip" "publicip_ansible_controller" {
   name                = "${var.prefix}-PublicIP-Ansible-Controller"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_ansible.name
   allocation_method   = "Static"
 
 }
@@ -30,7 +36,7 @@ resource "azurerm_public_ip" "publicip_ansible_controller" {
 resource "azurerm_network_interface" "nic_ansible_controller" {
   name                = "${var.prefix}-NIC1-Ansible-Controller"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_ansible.name
 
   ip_configuration {
     name                          = "bootcamp_Week5-NIC1_Conf_ansible_controller"
@@ -45,7 +51,7 @@ resource "azurerm_network_interface" "nic_ansible_controller" {
 resource "azurerm_network_security_group" "nsg_ansible_controller" {
   name                = "${var.prefix}-APP-NSG-Ansible-Controller"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_ansible.name
 
 
   security_rule {
@@ -80,7 +86,7 @@ resource "azurerm_subnet_network_security_group_association" "public_ansible_con
 resource "azurerm_virtual_machine" "vm_ansible_controller" {
   name                = "${var.prefix}-VM-Ansible-Controller"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg_ansible.name
   network_interface_ids = [azurerm_network_interface.nic_ansible_controller.id]
   vm_size               = var.public_vm_size
 

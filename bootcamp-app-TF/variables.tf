@@ -9,12 +9,6 @@ variable "location" {
 }
 
 
-variable "resource_group_name" {
-  type        = string
-  description = "Resource group name"
-  default     = "bootcamp_Week6-ResourceG"
-}
-
 variable "public_vm_size" {
   type        = string
   description = "Vm-Size Config"
