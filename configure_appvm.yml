@@ -5,10 +5,9 @@
   become: true
   vars_files:
     - ./vars.yml
-  remote_user: ubuntu
+  # remote_user: ubuntu
   tasks:
     # Install nodejs version 12+ with required prerequisities:
-
     - name: install nodejs prerequisites
       apt:
         name:
@@ -36,13 +35,6 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400 #One day
-    # Clone bootcamp-app from git repository:
-    - name: Clone bootcamp-app git repository
-      git:
-        repo: https://github.com/NoamPeace/bootcamp-app.git
-        dest: /src/bootcamp-app
-        clone: yes
-        update: no
     # Create a nodejs environment variables file:
     - name: Create a nodejs environment variables file
       copy:
@@ -64,20 +56,6 @@
         PGDATABASE=postgres
         PGPASSWORD={{ postgres_password }}
         PGPORT=5432
-    # Change the directory and run npm initializer command to create package.json
-    - name: Change the directory and run npm initializer command to create package.json
-      command: /usr/bin/npm init -y
-      args:
-        chdir: /src/bootcamp-app
-    # Install packages based on package.json
-    - name: Install packages based on package.json.
-      npm:
-        path: /src/bootcamp-app
-    # Run command npm audit fix
-    - name: Change the directory and run npm audit fix
-      command: /usr/bin/npm audit fix
-      args:
-        chdir: /src/bootcamp-app
     # Run command npm run initdb
     - name: Change the directory and run npm initdb to create a new table in the database and drop existing
       command: /usr/bin/npm audit fix
