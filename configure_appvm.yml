@@ -1,7 +1,6 @@
 ---
 # Configure weight tracker application web server on webservers hosts
 - name: Configure weight tracker application web server
-  hosts: webservers
   become: true
   vars_files:
     - ./vars.yml
@@ -88,4 +87,3 @@
       ansible.builtin.systemd:
         name: bootcamp-app
         state: started
-        
