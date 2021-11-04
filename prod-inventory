@@ -1,4 +1,5 @@
 [webservers-prod]
-20.112.98.106:50000
-20.112.98.106:50001
-20.112.98.106:50002
+appVM1-Prod ansible_host=20.112.98.106 ansible_port=50000 ansible_user=ubuntu
+appVM2-Prod ansible_host=20.112.98.106 ansible_port=50001 ansible_user=ubuntu
+appVM3-Prod ansible_host=20.112.98.106 ansible_port=50002 ansible_user=ubuntu
+
