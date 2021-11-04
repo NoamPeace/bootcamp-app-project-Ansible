@@ -60,6 +60,8 @@
       command: /usr/bin/npm audit fix
       args:
         chdir: /src/bootcamp-app
+      wait_for:
+        timeout: 10
     # Create a new bootcamp-app service file:
     - name: Create a new bootcamp-app service file
       copy:
