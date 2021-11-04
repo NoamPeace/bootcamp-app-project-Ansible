@@ -2,8 +2,6 @@
 # Configure weight tracker application web server on webservers hosts
 - name: Configure weight tracker application web server
   become: true
-  vars_files:
-    - ./vars.yml
   # remote_user: ubuntu
   tasks:
     # Install nodejs version 12+ with required prerequisities:
@@ -37,7 +35,7 @@
     # Create a nodejs environment variables file:
     - name: Create a nodejs environment variables file
       copy:
-       dest: /src/bootcamp-app/.env
+       dest: ~/bootcamp-app/.env
        content: |
         # Host configuration
         PORT=8080
@@ -59,7 +57,7 @@
     - name: Change the directory and run npm initdb to create a new table in the database and drop existing
       command: /usr/bin/npm audit fix
       args:
-        chdir: /src/bootcamp-app
+        chdir: ~/bootcamp-app
       wait_for:
         timeout: 10
     # Create a new bootcamp-app service file:
@@ -71,7 +69,7 @@
         Description=BootCamp App Weight Tracker
         
         [Service]
-        WorkingDirectory=/src/bootcamp-app
+        WorkingDirectory=~/bootcamp-app
         ExecStart=/usr/bin/npm run dev
         Type=simple
         Restart=always
