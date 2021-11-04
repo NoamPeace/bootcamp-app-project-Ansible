@@ -1,6 +1,7 @@
 ---
 # Configure weight tracker application web server on webservers hosts
 - name: Configure weight tracker application web server
+  hosts: webservers
   become: true
   # remote_user: ubuntu
   tasks:

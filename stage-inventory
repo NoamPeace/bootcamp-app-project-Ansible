@@ -1,4 +1,4 @@
-[webservers-stage]
+[webservers]
 appVM1-Stage ansible_host=20.112.98.86 ansible_port=50000 ansible_user=ubuntu
 appVM2-Stage ansible_host=20.112.98.86 ansible_port=50001 ansible_user=ubuntu
 appVM3-Stage ansible_host=20.112.98.86 ansible_port=50002 ansible_user=ubuntu
