@@ -5,7 +5,7 @@ variable "prefix" {
 
 variable "location" {
   description = "Region"
-  default     = "westus2"
+  default     = "Eastus"
 }
 
 

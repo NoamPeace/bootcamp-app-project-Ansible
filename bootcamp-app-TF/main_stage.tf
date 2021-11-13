@@ -248,8 +248,17 @@ resource "azurerm_network_security_group" "nsg_staging" {
     source_address_prefix      = data.azurerm_public_ip.ip_ansible_controller.ip_address
     destination_address_prefix = "*"
   }
-
-
+  security_rule {
+    name                       = "PostgresDB"
+    priority                   = 201
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5432"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
   security_rule {
     name                       = "Port_8080"
     priority                   = 101

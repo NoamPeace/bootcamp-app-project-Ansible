@@ -1,0 +1,5 @@
+.git
+*.yml
+**/README.md
+prod-inventory
+stage-inventory
