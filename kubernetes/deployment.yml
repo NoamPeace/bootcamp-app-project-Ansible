@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: bootcamp-app 
+spec:
+  replicas:
+  selector:
+    matchLabels:
+      app: bootcamp-app
+  template:
+    metadata:
+      labels:
+        app: bootcamp-app
+    spec:
+      containers:
+        - name: bootcamp-app
+          image: bootcampacr2905.azurecr.io/bootcampweek9cicd
+          ports:
+          - containerPort: 80
